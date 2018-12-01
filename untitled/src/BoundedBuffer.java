@@ -18,8 +18,9 @@ public class BoundedBuffer implements Buffer {
     private int count;
     private int in, out;
     private Object[] buffer;
-    public static double droppedPackets;
-    public static double totalPackets;
+    // New Variables to keep track of drop count and total packet
+    public static double dropCount;
+    public static double totalCountPacket;
 
     public BoundedBuffer() {
         // buffer is initially empty
@@ -34,29 +35,16 @@ public class BoundedBuffer implements Buffer {
         full = new Semaphore(0);
     }
 
-    public BoundedBuffer(int bufferSize) {
-        // buffer is initially empty
-        count = 0;
-        in = 0;
-        out = 0;
-
-        buffer = new Object[bufferSize];
-
-        mutex = new Semaphore(1);
-        empty = new Semaphore(bufferSize);
-        full = new Semaphore(0);
-    }
-
     // producer calls this method
     public void insert(Object item) {
-        //used to drop packets if the buffer is full
-        if(count == BUFFER_SIZE) {
-            System.out.println("PACKET DROPPED -- BECAUSE BUFFER FULL");
-            droppedPackets++;
+        if (count == BUFFER_SIZE) {
+            dropCount++;
+            //System.out.println("Packet received --- Buffer FULL");
             return;
+        } else {
+            totalCountPacket++;
+            //System.out.println("Packet received --- Buffer Size = " + count);
         }
-        //System.out.println("shouldnt print after packet dropped");
-
         try {
             empty.acquire();
             mutex.acquire();
@@ -66,13 +54,6 @@ public class BoundedBuffer implements Buffer {
         ++count;
         buffer[in] = item;
         in = (in + 1) % BUFFER_SIZE;
-
-        if (count == BUFFER_SIZE) {
-            //System.out.println("            Packet received --- Buffer FULL");
-        } else {
-            //System.out.println("            Packet received --- Buffer Size = " + count);
-        }
-        totalPackets++;
         mutex.release();
         full.release();
     }
@@ -91,13 +72,18 @@ public class BoundedBuffer implements Buffer {
         out = (out + 1) % BUFFER_SIZE;
 
         if (count == 0) {
-            //System.out.println("            Firewall took packet --- Buffer EMPTY");
+            //System.out.println("Firewall took packet --- Buffer EMPTY");
         } else {
-            //System.out.println("            Firewall took packet --- Buffer Size = " + count);
+           // System.out.println("Firewall took packet --- Buffer Size = " + count);
+        }
+        if(Producer.packetCount == 500){
+            Factory.kill = true;
+            Factory.killAll();
         }
 
         mutex.release();
         empty.release();
+
 
         return item;
     }

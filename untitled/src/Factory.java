@@ -1,42 +1,64 @@
 //package Semaphores.boundedbuffer;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This creates the buffer and the producer and consumer threads.
+ * average service time per packet: time the server will actually process the packet;
+ *
+ * maximum service time per packet;
+ *
+ * average turnaround (or processing) time per packet : end_time – creation_time;
+ *
+ * maximum turnaround (or processing) time per packet;
+ *
+ * average wait time per packet : turnaround_time – service_time;
+ *
+ * maximum wait time per packet;
+ *
+ * processor (or CPU) utilization = total processor busy time / total time;
+ *
+ * processor throughput (packets/second) = total # of packets / total # of seconds.
  *
  */
 public class Factory {
+    public static double startTime = 0;
+    public static double endTime = 0;
+    public static  volatile  boolean kill = false;
+    static Thread producer;
+    static Thread consumer;
+    static Packet packet;
+
 
     public static void main(String args[]) {
         Buffer server = new BoundedBuffer();
-        Packet packet = new Packet(5);
-        double time = 0;
+        packet = new Packet(12);
+        producer = new Thread(new Producer(server,12, 10));
+        consumer = new Thread(new Consumer(server));
+        startTime = System.currentTimeMillis();
+        producer.start();
+        consumer.start();
+    }
 
-        // now create the producer and consumer threads
-        Thread packetProducer = new Thread(new Producer(server,5, 2));
-        Thread firewall = new Thread(new Consumer(server));
-
-        packetProducer.start();
-        firewall.start();
-        time = System.currentTimeMillis();
-        //run for 1 minute then move to code below
-        try {
-            TimeUnit.MINUTES.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            System.out.println("failed");
+    public static void killAll(){
+        if(Factory.kill == true){
+           endTime = System.currentTimeMillis() - startTime;
+            packet.calculateAvg();
+            // Print out result
+            printResult();
+            producer.stop();
+            consumer.stop();
         }
-        time = System.currentTimeMillis() - time;
-        packetProducer.stop();
-        firewall.stop();
-        packet.getAverages();
-        //now print averages and maxes
-        System.out.println("Wait Times -- Average : " + Packet.avgWaitTime + " Max : " + Packet.maxWaitTime);
-        System.out.println("Turnaround Times -- Average : " + Packet.avgTurnaroundTime + " Max : " + Packet.maxTurnaroundTime);
-        System.out.println("Service Times -- Average : " + Packet.avgServiceTime + " Max : " + Packet.maxServiceTime);
-        System.out.println("Packets Dropped : " + BoundedBuffer.droppedPackets + " out of: " +BoundedBuffer.totalPackets + " == " +(BoundedBuffer.droppedPackets/(BoundedBuffer.totalPackets+BoundedBuffer.droppedPackets))*100 + "%");
-        System.out.println("Proccesor Util : " + (Packet.totalServiceTime / time)*100 + "%");
+    }
+
+    /**
+     * Get average and max value from Packet and print out
+     */
+    public static void printResult(){
+        System.out.println("Wait Times| Average:" + Packet.getAvgWaitTime() + "| Max: " + Packet.getMaxWaitTime() +
+                "\nTurnaround Times| Average : " + Packet.getAvgTurnaroundTime() + "| Max: " + Packet.getMaxTurnaroundTime()+
+                "\nService Times| Average : " + Packet.getAvgServiceTime() + "| Max: " + Packet.getMaxServiceTime()+
+                "\nDrop Packets: " + (BoundedBuffer.dropCount/ (BoundedBuffer.totalCountPacket + BoundedBuffer.dropCount)) +
+                "\nProccesor Util: " + (Packet.totalServiceTime / endTime)*100 + "%");
     }
 }

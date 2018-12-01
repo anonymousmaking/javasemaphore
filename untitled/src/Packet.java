@@ -1,12 +1,13 @@
 import java.util.ArrayList;
 
 public class Packet {
-
-    public double serviceTime = 0;
-    public double realServiceTime = 0;
-    public double turnaroundTime = 0;
-    public double startTime = 0;
-    public double waitTime = 0;
+    // Variables
+    private double serviceTime = 0;
+    private double endServiceTime = 0;
+    private double turnaroundTime = 0;
+    private double startTime = 0;
+    private double waitTime = 0;
+    // Static Variables
     public static double maxServiceTime = 0;
     public static double maxTurnaroundTime = 0;
     public static double maxWaitTime = 0;
@@ -14,84 +15,199 @@ public class Packet {
     public static double avgTurnaroundTime = 0;
     public static double avgWaitTime = 0;
     public static double totalServiceTime = 0;
+    // Collections
+    public static ArrayList<Double> serviceTimeList = new ArrayList<Double>();
+    public static ArrayList<Double> turnaroundList = new ArrayList<Double>();
+    public static ArrayList<Double> waitTimeList = new ArrayList<Double>();
 
-    public static ArrayList<Double> serviceTimes = new ArrayList<Double>();
-    public static ArrayList<Double> turnaroundTimes = new ArrayList<Double>();
-    public static ArrayList<Double> waitTimes = new ArrayList<Double>();
+    /**
+     * Constructor
+     * @param time
+     */
+    public Packet(int time) {
+        this.serviceTime = time;
+        this.startTime = System.currentTimeMillis();
 
-
-    public Packet (int time) {
-        serviceTime = time;
-        startTime();
     }
 
-    public void startTime() { startTime = System.currentTimeMillis(); }
 
-    public void endTime() {
-        turnaroundTime = System.currentTimeMillis() - startTime;
-    }
 
-    public void waitTime() {
-        waitTime = turnaroundTime - (realServiceTime);
-    }
 
-    public void startRealServiceTime() {
-        realServiceTime = System.currentTimeMillis();
-    }
 
-    public void setRealServiceTime() {
-        realServiceTime = System.currentTimeMillis() - realServiceTime;
-    }
-
-    @Override
-    public String toString() {
-        setRealServiceTime();
-        if(turnaroundTime == 0) {
-            endTime();
-            waitTime();
-        }
-        //add current stats to stats list
-        addStats();
-        getMax();
-        return turnaroundTime + " wait time: " + waitTime + "ms";
-    }
-
-    //set max after every packet
-    private void getMax() {
+    private void calculateMax() {
         if (serviceTime > maxServiceTime) {
-            maxServiceTime = realServiceTime;
+            maxServiceTime = endServiceTime;
         }
-        if(waitTime > maxWaitTime) {
+        if (waitTime > maxWaitTime) {
             maxWaitTime = waitTime;
         }
-        if(turnaroundTime > maxTurnaroundTime) {
+        if (turnaroundTime > maxTurnaroundTime) {
             maxTurnaroundTime = turnaroundTime;
         }
     }
 
-    private void addStats() {
-        waitTimes.add(waitTime);
-        turnaroundTimes.add(turnaroundTime);
-        serviceTimes.add(realServiceTime);
-        totalServiceTime += realServiceTime;
+    private void addToList() {
+        waitTimeList.add(waitTime);
+        turnaroundList.add(turnaroundTime);
+        serviceTimeList.add(endServiceTime);
+        totalServiceTime += endServiceTime;
     }
 
-    public void getAverages() {
-        for(double num: waitTimes) {
+    public void calculateAvg() {
+        // Add to list
+        for (double num : waitTimeList) {
             avgWaitTime += num;
         }
-        avgWaitTime = avgWaitTime / waitTimes.size();
+        avgWaitTime = avgWaitTime / waitTimeList.size();
 
-        for(double num: turnaroundTimes) {
+        // Add to list
+        for (double num : turnaroundList) {
             avgTurnaroundTime += num;
         }
-        avgTurnaroundTime = avgTurnaroundTime / turnaroundTimes.size();
-
-        for(double num: serviceTimes) {
+        avgTurnaroundTime = avgTurnaroundTime / turnaroundList.size();
+        // Add to list
+        for (double num : serviceTimeList) {
             avgServiceTime += num;
         }
-        avgServiceTime = avgServiceTime / serviceTimes.size();
+        avgServiceTime = avgServiceTime / serviceTimeList.size();
+    }
+
+    public void calculateResult(){
+        endServiceTime = System.currentTimeMillis() - endServiceTime;
+        if (turnaroundTime == 0) {
+            turnaroundTime = System.currentTimeMillis() - startTime;
+            waitTime = turnaroundTime - endServiceTime;
+        }
+        addToList();
+        calculateMax();
+    }
+
+    @Override
+    public String toString() {
+        return turnaroundTime + " wait time: " + waitTime + "ms";
     }
 
 
+
+    // Getter, Setter
+
+    public double getServiceTime() {
+        return serviceTime;
+    }
+
+    public void setServiceTime(double serviceTime) {
+        this.serviceTime = serviceTime;
+    }
+
+    public double getEndServiceTime() {
+        return endServiceTime;
+    }
+
+    public void setEndServiceTime(double endServiceTime) {
+        this.endServiceTime = endServiceTime;
+    }
+
+    public double getTurnaroundTime() {
+        return turnaroundTime;
+    }
+
+    public void setTurnaroundTime(double turnaroundTime) {
+        this.turnaroundTime = turnaroundTime;
+    }
+
+    public double getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(double startTime) {
+        this.startTime = startTime;
+    }
+
+    public double getWaitTime() {
+        return waitTime;
+    }
+
+    public void setWaitTime(double waitTime) {
+        this.waitTime = waitTime;
+    }
+
+    public static double getMaxServiceTime() {
+        return maxServiceTime;
+    }
+
+    public static void setMaxServiceTime(double maxServiceTime) {
+        Packet.maxServiceTime = maxServiceTime;
+    }
+
+    public static double getMaxTurnaroundTime() {
+        return maxTurnaroundTime;
+    }
+
+    public static void setMaxTurnaroundTime(double maxTurnaroundTime) {
+        Packet.maxTurnaroundTime = maxTurnaroundTime;
+    }
+
+    public static double getMaxWaitTime() {
+        return maxWaitTime;
+    }
+
+    public static void setMaxWaitTime(double maxWaitTime) {
+        Packet.maxWaitTime = maxWaitTime;
+    }
+
+    public static double getAvgServiceTime() {
+        return avgServiceTime;
+    }
+
+    public static void setAvgServiceTime(double avgServiceTime) {
+        Packet.avgServiceTime = avgServiceTime;
+    }
+
+    public static double getAvgTurnaroundTime() {
+        return avgTurnaroundTime;
+    }
+
+    public static void setAvgTurnaroundTime(double avgTurnaroundTime) {
+        Packet.avgTurnaroundTime = avgTurnaroundTime;
+    }
+
+    public static double getAvgWaitTime() {
+        return avgWaitTime;
+    }
+
+    public static void setAvgWaitTime(double avgWaitTime) {
+        Packet.avgWaitTime = avgWaitTime;
+    }
+
+    public static double getTotalServiceTime() {
+        return totalServiceTime;
+    }
+
+    public static void setTotalServiceTime(double totalServiceTime) {
+        Packet.totalServiceTime = totalServiceTime;
+    }
+
+    public static ArrayList<Double> getServiceTimeList() {
+        return serviceTimeList;
+    }
+
+    public static void setServiceTimeList(ArrayList<Double> serviceTimeList) {
+        Packet.serviceTimeList = serviceTimeList;
+    }
+
+    public static ArrayList<Double> getTurnaroundList() {
+        return turnaroundList;
+    }
+
+    public static void setTurnaroundList(ArrayList<Double> turnaroundList) {
+        Packet.turnaroundList = turnaroundList;
+    }
+
+    public static ArrayList<Double> getWaitTimeList() {
+        return waitTimeList;
+    }
+
+    public static void setWaitTimeList(ArrayList<Double> waitTimeList) {
+        Packet.waitTimeList = waitTimeList;
+    }
 }

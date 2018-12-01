@@ -6,26 +6,40 @@
 import java.util.*;
 
 public class Producer implements Runnable {
-    int sleepTime = 10;
-    int proccesingTime = 5;
+    // Packet: Packets which arrive every 10 units and require 5 units processing (or service) time.
+    // Declare variables
+    private int sleepTime = 0;
+    private int proccesingTime = 0;
+    private double startTime = 0;
+    private double endTime = 0;
+    private double interarrival_time = 0;
+    public static int packetCount= 0;
 
     public Producer(Buffer b) {
         buffer = b;
     }
 
-    public Producer(Buffer b, int pTime, int sTime) {
-        buffer = b;
-        proccesingTime = pTime;
-        sleepTime = sTime;
+    public Producer(Buffer b, int proccesingTime, int sleepTime) {
+        this.buffer = b;
+        this.proccesingTime = proccesingTime;
+        this.sleepTime = sleepTime;
     }
     public void run() {
+        //Date message;
         Packet packet;
-        //System.out.println("Network Recieving packets");
-
         while (true) {
-            // produce an item & enter it into the buffer
+            // Init packet with processing time
             packet = new Packet(proccesingTime);
+            // insert packet into buffer
+            // Get current start time
+            startTime = System.currentTimeMillis();
             buffer.insert(packet);
+            packetCount++;
+            System.out.println("Packet number: " + packetCount);
+            // Get current end time
+            endTime = System.currentTimeMillis();
+            //interarrival_time = endTime - startTime;
+            // Delay 10 seconds
             SleepUtilities.nap(sleepTime);
         }
     }
