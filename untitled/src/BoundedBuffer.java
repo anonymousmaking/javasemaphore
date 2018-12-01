@@ -19,8 +19,8 @@ public class BoundedBuffer implements Buffer {
     private int in, out;
     private Object[] buffer;
     // New Variables to keep track of drop count and total packet
-    public static double dropCount;
-    public static double totalCountPacket;
+    protected static double dropCount;
+    protected static double totalCountPacket;
 
     public BoundedBuffer() {
         // buffer is initially empty

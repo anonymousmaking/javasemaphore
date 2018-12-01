@@ -13,7 +13,7 @@ public class Producer implements Runnable {
     private double startTime = 0;
     private double endTime = 0;
     private double interarrival_time = 0;
-    public static int packetCount= 0;
+    protected static int packetCount= 0;
 
     public Producer(Buffer b) {
         buffer = b;

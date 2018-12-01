@@ -8,17 +8,17 @@ public class Packet {
     private double startTime = 0;
     private double waitTime = 0;
     // Static Variables
-    public static double maxServiceTime = 0;
-    public static double maxTurnaroundTime = 0;
-    public static double maxWaitTime = 0;
-    public static double avgServiceTime = 0;
-    public static double avgTurnaroundTime = 0;
-    public static double avgWaitTime = 0;
-    public static double totalServiceTime = 0;
+    protected static double maxServiceTime = 0;
+    protected static double maxTurnaroundTime = 0;
+    protected static double maxWaitTime = 0;
+    protected static double avgServiceTime = 0;
+    protected static double avgTurnaroundTime = 0;
+    protected static double avgWaitTime = 0;
+    protected static double totalServiceTime = 0;
     // Collections
-    public static ArrayList<Double> serviceTimeList = new ArrayList<Double>();
-    public static ArrayList<Double> turnaroundList = new ArrayList<Double>();
-    public static ArrayList<Double> waitTimeList = new ArrayList<Double>();
+    protected static ArrayList<Double> serviceTimeList = new ArrayList<Double>();
+    protected static ArrayList<Double> turnaroundList = new ArrayList<Double>();
+    protected static ArrayList<Double> waitTimeList = new ArrayList<Double>();
 
     /**
      * Constructor
